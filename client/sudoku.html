@@ -1,0 +1,74 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku</title>
+</head>
+<body>
+  <div id="wrap">
+    {{> page}}
+    <div id="push"></div>
+  </div>
+  <div id="footer">
+    <div class="container">
+      <center>
+      Iletisim: aysecansutanrikulu@gmail.com, onursolmaz@gmail.com
+    </center>
+    </div>
+  </div>
+</body>
+
+<template name="page">
+<div class="container">
+  <div class="row">
+
+    <div class="span1"> </div>
+
+    <div class="span10">
+      <div class="header row">
+        <div class="span5">
+          <h3 style="margin-bottom: 0px">Sudoku</h3>
+        </div>
+        <div class="span5">
+          <div style="float: right">
+            {{loginButtons align="right"}}
+          </div>
+        </div>
+      </div>
+
+      {{loading}}
+      {{> puzzle}}
+
+    </div>
+  </div>
+</div>
+
+</template> 
+
+<template name="puzzle">
+{{#if currentUser}}
+{{#if currentNotExists}}
+<input type="button" value="Yeni bulmaca icin tiklayiniz"
+class="btn btn-small requestgame">
+{{else}}
+{{loadCurrent}}
+{{/if}}
+{{#constant}}
+<div id="sudoku"></div>
+{{/constant}}
+{{#if isAdmin}}
+<h3>Admin Paneli</h3>
+{{/if}}
+{{else}}
+Lutfen giris yapin.
+{{/if}}
+<!--<div id="resolved-sudoku"></div>-->
+</template>
+<!--<template name="myTemplate">-->
+<!--{{#if isSubscriptionComplete }}-->
+<!--[> Data loading is done, so render your template here <]-->
+<!--{{> page}}-->
+<!--{{else}}-->
+<!--[> Data loading still remaining, so display loader here <]-->
+<!--LOLOLOLLOADING-->
+<!--[><img src="images/load.gif"><]-->
+<!--{{/if}}-->
+<!--</template>-->
