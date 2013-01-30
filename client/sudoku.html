@@ -34,14 +34,38 @@
         </div>
       </div>
 
-      {{loading}}
       {{> puzzle}}
-
+      {{> adminPanel}}
     </div>
   </div>
 </div>
-
 </template> 
+
+<template name="adminPanel">
+  {{#if isAdmin}}
+    <br><hr>
+    <div class="hero-unit">
+    <h3>Admin Paneli</h3>
+    <span class="span2">User</span>
+    <span class="span1">Difficulty</span>
+    <span class="span1">Duration</span>
+    <span class="span3">End Date</span>
+    <br><hr>
+    {{#each prevGames}}
+      {{> prevGame}}
+    {{/each}}
+    </div>
+  {{/if}}
+</template>
+
+<template name="prevGame">
+  <div class="prevGame {{selected}}">
+    <span class="span2">{{email}}</span>
+    <span class="span1">{{diff}}</span>
+    <span class="span1">{{duration}}</span>
+    <span class="span3">{{enddate}}</span>
+  </div>
+</template>
 
 <template name="puzzle">
 {{#if currentUser}}
@@ -54,9 +78,6 @@ class="btn btn-small requestgame">
 {{#constant}}
 <div id="sudoku"></div>
 {{/constant}}
-{{#if isAdmin}}
-<h3>Admin Paneli</h3>
-{{/if}}
 {{else}}
 Lutfen giris yapin.
 {{/if}}

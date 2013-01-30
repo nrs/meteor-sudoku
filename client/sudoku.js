@@ -3,6 +3,8 @@
 //Meteor.subscribe("directory");
 //Meteor.subscribe("parties");
 //Meteor.subscribe("puzzles");
+//
+Meteor.subscribe('currentUserData');
 
 //// If no party selected, select one.
 //Meteor.startup(function () {
@@ -97,7 +99,7 @@ var complete = function(board) {
   delete thissession._id;
   thissession.enddate = new Date();
   loldate = new Date(thissession.startdate);
-  thissession.duration = (thissession.enddate-loldate)/60000;// in minutes
+  thissession.duration = Math.round((thissession.enddate-loldate)/60000);// in minutes
   Gamehistory.insert(thissession);
   Currentgames.remove({id:Meteor.userId()});
   Meteor.call('sendReport',
@@ -248,7 +250,7 @@ var givePuzzle = function (difficulty){
     console.log('Cant retrive puzzle');
     //return;
   }else{
-    Currentgames.insert({id:Meteor.userId(), str:result.str, startdate:new Date(),diff:difficulty});
+    Currentgames.insert({id:Meteor.userId(),email:Meteor.user().emails[0].address, str:result.str, startdate:new Date(),diff:difficulty});
     $('#sudoku').sudoku2(result.str);
     //$('#sudoku').html("ASDASDASDSADASDAS");
   }
@@ -283,23 +285,26 @@ Template.puzzle.currentNotExists = function(){
 };
 
 Template.puzzle.loadCurrent = function () {
+  var lol = Meteor.autorun(function(){
+    lolol = Meteor.user();
   if (Puzzles.find().count()==0){return;}
   if ($('#sudoku').html()!=''){return;}
   thissession = Currentgames.findOne({id:Meteor.userId()});
   $('#sudoku').sudoku2(thissession.str);
   console.log('Loading previous session.');
+  });
 };
 
-Template.puzzle.isAdmin = function () {
-  if (Meteor.user().emails==undefined){return false;}
-  if (Meteor.user().emails[0].address=='aysecansutanrikulu@gmail.com'||
-      Meteor.user().emails[0].address=='onursolmaz@gmail.com'){
-        return true;
-      }else{
-        return false;
-      }
-
+Template.adminPanel.isAdmin = function () {
+  if (Meteor.user()==null){return false;}
+  if (Meteor.user().admin==true) { return true;}
+  else {return false;}
 };
+
+Template.adminPanel.prevGames = function () {
+  return Gamehistory.find({}, {sort: {enddate: 1}});
+};
+
 
 Template.puzzle.rendered = function(){
   //var self = this;

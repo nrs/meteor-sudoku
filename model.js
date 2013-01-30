@@ -165,26 +165,35 @@ Meteor.methods({
     //return result;
   //}
   sendReport: function (repobj){
-    var to = 'onursolmaz@gmail.com';
-    console.log('Sending report to: '+to);
-    if (Meteor.isServer && to) {
+    console.log('Sending report to admins');
+    if (Meteor.isServer) {
+      var admins = Meteor.users.find({admin:true}).fetch();
+      console.log(Meteor.users.find({admin:true}).count());
       // This code only runs on the server. If you didn't want clients
       // to be able to see it, you could move it to a separate file.
-      Email.send({
-        from: "yavuzbingol02@gmail.com",
-        to: to,
-        //replyTo: from || undefined,
-        subject: "The user "+repobj.who+" just finished a puzzle", 
-        text:"User: "+repobj.who+
-             "\nDifficulty: "+repobj.diff+
-             "\nStart date: "+repobj.startdate+
-             "\nEnd date: "+repobj.enddate+
-             "\nDuration: "+Math.round(repobj.duration)+" min"+
-             "\nPuzzle str: "+repobj.str
-      });
+      for(var i = 0; i < admins.length; i++){
+        console.log(admins[i].emails[0].address);
+        Email.send({
+          from: "yavuzbingol02@gmail.com",
+          to: admins[i].emails[0].address,
+          //replyTo: from || undefined,
+          subject: "The user "+repobj.who+" just finished a puzzle", 
+          text:"User: "+repobj.who+
+          "\nDifficulty: "+repobj.diff+
+          "\nStart date: "+repobj.startdate+
+          "\nEnd date: "+repobj.enddate+
+          "\nDuration: "+repobj.duration+" min"+
+          "\nPuzzle str: "+repobj.str
+        });
+      }
     }
   }
 });
+
+var isAdmin = function (user) {
+if (user.admin==true){ return true;}
+else{return false;}
+};
 ///////////////////////////////////////////////////////////////////////////////
 // Users
 

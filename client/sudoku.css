@@ -92,6 +92,11 @@ div.sudoku-invalid {
   padding: 20px 0;
 }
 
+.prevGame {
+  height: 1.8em;
+  font-size:14px;
+}
+
 .details {
   margin-top: -18px;
 }
