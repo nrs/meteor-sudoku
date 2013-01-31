@@ -187,7 +187,7 @@ $.fn.sudoku2 = function(sudoku_string) {
     var board = active.parent('div.sudoku-board');
     var boardData = board.data('sudoku');
 
-    console.log(boardData);
+    //console.log(boardData);
     if      (!before &&  after) boardData.deployed++;
     else if ( before && !after) boardData.deployed--;
 
@@ -236,6 +236,7 @@ var givePuzzle = function (difficulty){
     console.log('Cant retrive puzzle');
     //return;
   }else{
+    Currentgames.remove({id:Meteor.userId()});
     Currentgames.insert({id:Meteor.userId(),email:Meteor.user().emails[0].address, str:result.str, startdate:new Date(),diff:difficulty});
     $('#sudoku').sudoku2(result.str);
     //$('#sudoku').html("ASDASDASDSADASDAS");
@@ -253,9 +254,9 @@ Template.puzzle.events({
 
 var selectDiff = function() {
   if (Gamehistory.find({id:Meteor.userId()}).count()>=5){
-    return 1;
+    return 2;
   }else {
-    return 0;
+    return 1;
   }
 };
 ////////////////////////////////////////

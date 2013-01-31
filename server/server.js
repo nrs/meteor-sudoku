@@ -1,4 +1,4 @@
-// All Tomorrow's Parties -- server
+// Sudoku -- server
 
 path_sudoku_gen="generate_sudoku.py";
 
@@ -20,7 +20,6 @@ Meteor.publish("currentUserData", function () {
 //{$or: [{"public": true}, {invited: this.userId}, {owner: this.userId}]});
 //});
 
-//if (Meteor.isServer) {
 //Meteor.publish("puzzles", function () {
 //return Puzzles.find(); // everything
 //});
@@ -29,31 +28,16 @@ var addPuzzle = function (difficulty,clu, lo, hi) {
   var require = __meteor_bootstrap__.require;
   var sys = require('sys');
   var exec = require('child_process').exec;
-  //var exec = require('execSync');
 
-  //exec("php social.php", function(error, stdout, stderr) {
-  //exec(path_sudoku_gen+" 36 0.4 0.5", function(error, stdout, stderr) {
-  //var sudoku_str = exec.stdout(path_sudoku_gen+" "+clu+" "+lo+" "+hi);
   var lol = exec(path_sudoku_gen+" "+clu+" "+lo+" "+hi, function(error, stdout, stderr) {
     console.log(stdout);
     Fiber(function() {
       var sudoku_str=stdout;
+      if (sudoku_str.length!=81){return;}
       Puzzles.insert({diff:difficulty, str:sudoku_str, random : Math.random()})
       console.log(sudoku_str);
-    //Games.insert(
-    //{
-    //result: stdout
-    //}
-    //);
     }).run();
-
-    //return sudoku_str;
   });
-
-  //var results = Games.find({}, {}).fetch();
-  //return results['result'];
-  //return sudoku_str; 
-  //return lol; 
 }
 
 var populatePuzzles = function (difficulty,lo,hi,clu,desiredAmount) {
@@ -79,10 +63,9 @@ Meteor.startup(function () {
   console.log('Number of admins: '+Meteor.users.find({admin:true}).count());
   desiredAmount = 200;
   console.log("Number of puzzles: "+Puzzles.find().count());
-  populatePuzzles(0,0  ,1.5 ,79,desiredAmount); // supereasy
-  populatePuzzles(1,0.4,0.5 ,50,desiredAmount); // easy
-  populatePuzzles(2,0  ,1.5 ,40,desiredAmount); // medium
-  populatePuzzles(3,0  ,1.5 ,30,desiredAmount); // difficult
+  populatePuzzles(0,0.0,1.5 ,79,desiredAmount); // supereasy
+  populatePuzzles(1,0.0,0.60,36,desiredAmount); // easy
+  populatePuzzles(2,0.6,0.8 ,33,desiredAmount); // medium
+  populatePuzzles(3,0.8,1.0 ,30,desiredAmount); // difficult
 });
 
-//}// is server
