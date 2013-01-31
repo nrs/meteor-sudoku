@@ -86,15 +86,18 @@ div.sudoku-invalid {
 /*div.sudoku-invalid {*/
 /*background: red;*/
 /*}*/
-
+.adminTable td {overflow:auto;}
+.adminTable {table-layout:fixed;}
 
 .header {
   padding: 20px 0;
 }
 
 .prevGame {
-  height: 1.8em;
+  /*height: 1.8em;*/
   font-size:14px;
+  /*word-wrap: break-word;*/
+  /*display: block*/
 }
 
 .details {

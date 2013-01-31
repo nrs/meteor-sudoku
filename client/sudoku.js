@@ -6,27 +6,14 @@
 //
 Meteor.subscribe('currentUserData');
 
-//// If no party selected, select one.
-//Meteor.startup(function () {
-//Meteor.autorun(function () {
-//if (! Session.get("selected")) {
-//var party = Parties.findOne();
-//if (party)
-//Session.set("selected", party._id);
-//}
-//});
-//});
-
-
-
-//(function($) {
 var active = null;
 var bound = false;
+var nMistakes = 0;
 
 var initialize = function(initial) {
   var board = $('<div/>').addClass('sudoku-board');
   var deployed = 0;
-
+  nMistakes = 0
   var rows = xmap(function(row, column) {
     var value = parseInt(initial.charAt(row * 9 + column), 10);
     var cell = create(row, column, value);
@@ -100,6 +87,7 @@ var complete = function(board) {
   thissession.enddate = new Date();
   loldate = new Date(thissession.startdate);
   thissession.duration = Math.round((thissession.enddate-loldate)/60000);// in minutes
+  thissession.mistakes = nMistakes;
   Gamehistory.insert(thissession);
   Currentgames.remove({id:Meteor.userId()});
   Meteor.call('sendReport',
@@ -108,9 +96,11 @@ var complete = function(board) {
        startdate:thissession.startdate,
        enddate:thissession.enddate,
        str:thissession.str,
-       duration: thissession.duration
+       duration: thissession.duration,
+       mistakes: thissession.mistakes
   });
   alert('Tebrikler.');
+  console.log(nMistakes)
 };
 
 var create_subborder = function(left, top) {
@@ -145,7 +135,6 @@ var apply = function(cell, iterator) {
 
 var xmap = function(iterator) {
   var items = [];
-
   for (var row = 0; row < 9; row++) {
     for (var column = 0; column < 9; column++) {
       result = iterator(row, column);
@@ -156,7 +145,6 @@ var xmap = function(iterator) {
       items[i][j] = result[2];
     }
   }
-
   return items;
 };
 
@@ -191,6 +179,7 @@ $.fn.sudoku2 = function(sudoku_string) {
         });
         data.value = value;
         data.deployed = deployed;
+        if (deployed==false) {nMistakes++;}
         active[deployed ? 'removeClass' : 'addClass']('sudoku-invalid').
       text(value);
       }
@@ -198,6 +187,7 @@ $.fn.sudoku2 = function(sudoku_string) {
     var board = active.parent('div.sudoku-board');
     var boardData = board.data('sudoku');
 
+    console.log(boardData);
     if      (!before &&  after) boardData.deployed++;
     else if ( before && !after) boardData.deployed--;
 
@@ -208,24 +198,20 @@ $.fn.sudoku2 = function(sudoku_string) {
 
   //var thisdate = new Date();
   //Currentgames.insert({id:Meteor.userId()});
-  console.log('KLKOKOKOKOKOKO '+sudoku_string);
+  console.log('The puzzle is: '+sudoku_string);
 
   var board = initialize(sudoku_string).appendTo(this);
-  board.append(create_subborder(2,2));
-  board.append(create_subborder(140,2));
-  board.append(create_subborder(278,2));
-  board.append(create_subborder(2,140));
-  board.append(create_subborder(140,140));
-  board.append(create_subborder(278,140));
-  board.append(create_subborder(2,278));
-  board.append(create_subborder(140,278));
-  board.append(create_subborder(278,278));
+
+  border_pos = [2,140,278];
+  for (var i=0; i<3; i++){
+    for (var j=0; j<3; j++){
+      board.append(create_subborder(border_pos[i],border_pos[j]));
+    }
+  }
 
   if (board.data('sudoku').deployed == 81) complete(board);
   return this;
 };
-//})(jQuery);
-
 
 //Meteor.startup(function(){
 ////setTimeout(function(){ 
@@ -258,7 +244,7 @@ var givePuzzle = function (difficulty){
 //////////////////////////////
 Template.puzzle.events({
   'click .requestgame': function(){
-    console.log('LLOLOLOLOLOL');
+    console.log('Requested game.');
     //Currentgames.insert({id:Meteor.userId()});
     givePuzzle(selectDiff());
   }
@@ -276,7 +262,7 @@ var selectDiff = function() {
 Template.puzzle.currentNotExists = function(){
   //if (!Meteor.userId()){console.log('asfasfas'); return false; }
 
-  if (Puzzles.find().count()==0){console.log('asfasfas'); return false; }
+  //if (Puzzles.find().count()==0){[>console.log('asfasfas');<] return false; }
   if (Currentgames.find({id:Meteor.userId()}).count()==0){
     return true;  
   }else{
@@ -285,13 +271,13 @@ Template.puzzle.currentNotExists = function(){
 };
 
 Template.puzzle.loadCurrent = function () {
+  console.log('Loading previous session.');
   var lol = Meteor.autorun(function(){
     lolol = Meteor.user();
   if (Puzzles.find().count()==0){return;}
   if ($('#sudoku').html()!=''){return;}
   thissession = Currentgames.findOne({id:Meteor.userId()});
   $('#sudoku').sudoku2(thissession.str);
-  console.log('Loading previous session.');
   });
 };
 
@@ -302,7 +288,7 @@ Template.adminPanel.isAdmin = function () {
 };
 
 Template.adminPanel.prevGames = function () {
-  return Gamehistory.find({}, {sort: {enddate: 1}});
+  return Gamehistory.find({}, {sort: {enddate: -1}});
 };
 
 
@@ -313,7 +299,7 @@ Template.puzzle.rendered = function(){
     self.handle = Meteor.autorun( function(){
       var lololol = Puzzles.find().fetch();
       //var ololol= Meteor.users.find().fetch();
-      console.log('LOLPAINIS '+Puzzles.find().count());
+      console.log('Number of puzzles: '+Puzzles.find().count());
 
       //console.log(Meteor.userID);
       //if (!Meteor.userId()){ 
@@ -350,97 +336,4 @@ Template.puzzle.rendered = function(){
 Template.puzzle.destroyed = function () {
   this.handle && this.handle.stop();
 };
-
-Template.page.loading = function() {
-  return Puzzles.find().count === 0 ? "Loading..." : "";
-}
-
-//Meteor.subscribe('puzzles', function (){
-//// set a session key to true to indicate that the subscription is completed.
-////          Session.set('subscription_completed', true);
-//Session.set('subscription_completed', true);
-//console.log('qqqq '+Puzzles.find().count());
-////$('#sudoku').sudoku2(0);
-//});
-//console.log('qqqq '+Puzzles.find().count());
-
-
-//Template.myTemplate.isSubscriptionComplete = function(){
-//return Session.get('subscription_completed'); 
-//}
-
-//$('#sudoku').sudoku('530070000' +
-//'600195000' +
-//'098000060' +
-//'800060003' +
-//'400803001' +
-//'700020006' +
-//'060000280' +
-//'000419005' +
-//'000080079');
-
-
-//$('#sudoku').sudoku('034678912' +
-//'672195348' +
-//'198342567' +
-//'859761423' +
-//'426853791' +
-//'713924856' +
-//'961537284' +
-//'287419635' +
-//'345286170');
-
-//Template.page.puzzles = function() {  
-//console.log('Templatedasdasda'+Puzzles.find().count());
-//return $('#sudoku').sudoku2(0);
-////return Puzzles.find();
-//};
-
-//var create_puzzle = function(difficulty) 
-//{
-//var sudoku_string = Meteor.call("getpuzzle",36,0.4,0.5);
-//console.log(sudoku_string);
-//$('#sudoku').sudoku();
-
-//}
-
-//console.log("LOLOLOLOLOLOL");
-//create_puzzle(0);
-/*
-   $('#resolved-sudoku').sudoku('534678912' +
-   '672195348' +
-   '198342567' +
-   '859761423' +
-   '426853791' +
-   '713924856' +
-   '961537284' +
-   '287419635' +
-   '345286179');
-   */
-
-//Meteor.methods({
-//getpuzzle: function (clu, lo, hi) {
-//var require = __meteor_bootstrap__.require;
-//var sys = require('sys');
-//var exec = require('child_process').exec;
-
-////exec("php social.php", function(error, stdout, stderr) {
-////exec(path_sudoku_gen+" 36 0.4 0.5", function(error, stdout, stderr) {
-//exec(path_sudoku_gen+" "+clu+" "+lo+" "+hi, function(error, stdout, stderr) {
-//console.log(stdout);
-//Fiber(function() {
-//Shell.insert(
-//{
-//result: stdout
-//}
-//);
-//}).run();
-//});
-
-////var results = Shell.find({}, {});
-//var results = Shell.find({}, {}).fetch();
-////console.log(results);
-//return results;
-//}
-//});
 

@@ -183,6 +183,7 @@ Meteor.methods({
           "\nStart date: "+repobj.startdate+
           "\nEnd date: "+repobj.enddate+
           "\nDuration: "+repobj.duration+" min"+
+          "\nNumber of mistakes: "+repobj.mistakes+
           "\nPuzzle str: "+repobj.str
         });
       }
@@ -190,10 +191,12 @@ Meteor.methods({
   }
 });
 
-var isAdmin = function (user) {
-if (user.admin==true){ return true;}
-else{return false;}
-};
+//var isAdmin = function (user) {
+//if (user.admin==true){ return true;}
+//else{return false;}
+//};
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Users
 
