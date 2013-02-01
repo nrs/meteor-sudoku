@@ -12,33 +12,6 @@ Gamehistory = new Meteor.Collection("gamehistory");
 //});
 
 
-Meteor.methods({
-  sendReport: function (repobj){
-    console.log('Sending report to admins');
-    if (Meteor.isServer) {
-      var admins = Meteor.users.find({admin:true}).fetch();
-      console.log(Meteor.users.find({admin:true}).count());
-      // This code only runs on the server. If you didn't want clients
-      // to be able to see it, you could move it to a separate file.
-      for(var i = 0; i < admins.length; i++){
-        console.log(admins[i].emails[0].address);
-        Email.send({
-          from: "yavuzbingol02@gmail.com",
-          to: admins[i].emails[0].address,
-          //replyTo: from || undefined,
-          subject: "The user "+repobj.who+" just finished a puzzle", 
-          text:"User: "+repobj.who+
-          "\nDifficulty: "+repobj.diff+
-          "\nStart date: "+repobj.startdate+
-          "\nEnd date: "+repobj.enddate+
-          "\nDuration: "+repobj.duration+" min"+
-          "\nNumber of mistakes: "+repobj.mistakes+
-          "\nPuzzle str: "+repobj.str
-        });
-      }
-    }
-  }
-});
 
 ///////////////////////////////////////////////////////////////////////////////
 // Users

@@ -273,12 +273,14 @@ Template.puzzle.currentNotExists = function(){
 
 Template.puzzle.loadCurrent = function () {
   console.log('Loading previous session.');
-  var lol = Meteor.autorun(function(){
-    lolol = Meteor.user();
-  if (Puzzles.find().count()==0){return;}
-  if ($('#sudoku').html()!=''){return;}
-  thissession = Currentgames.findOne({id:Meteor.userId()});
-  $('#sudoku').sudoku2(thissession.str);
+  var lol = Meteor.autorun(function(handle){
+    var lolol = Meteor.user();
+    var lolol = Currentgames.find().fetch();
+    //if (Puzzles.find().count()==0){console.log('LOLOLL');return;}
+    if ($('#sudoku').html()!=''){return;}
+    thissession = Currentgames.findOne({id:Meteor.userId()});
+    if (thissession == undefined) {return;}
+    $('#sudoku').sudoku2(thissession.str);
   });
 };
 
