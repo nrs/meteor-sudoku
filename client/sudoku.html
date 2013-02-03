@@ -19,9 +19,7 @@
 <template name="page">
 <div class="container">
   <div class="row">
-
     <div class="span1"> </div>
-
     <div class="span10">
       <div class="header row">
         <div class="span5">
@@ -44,7 +42,9 @@
 {{#if isAdmin}}
 <br><hr>
 <div class="hero-unit">
-  <h3>Admin Paneli</h3>
+  <h3>Admin Panel</h3>
+  <input type="button" value="Send total record"
+  class="btn btn-small sendTotalRecord"> &lt-- Use responsibly.
   <table class="table table-striped table-condensed adminTable">
     <colgroup>
       <col width="30%">

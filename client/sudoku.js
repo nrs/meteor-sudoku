@@ -249,9 +249,14 @@ Template.puzzle.events({
     //Currentgames.insert({id:Meteor.userId()});
     givePuzzle(selectDiff());
   }
-
 });
 
+Template.adminPanel.events({
+  'click .sendTotalRecord': function(){
+    console.log('Sending total record.');
+    Meteor.call('sendTotalRecord')
+  }
+});
 var selectDiff = function() {
   if (Gamehistory.find({id:Meteor.userId()}).count()>=5){
     return 2;
@@ -276,7 +281,7 @@ Template.puzzle.loadCurrent = function () {
   var lol = Meteor.autorun(function(handle){
     var lolol = Meteor.user();
     var lolol = Currentgames.find().fetch();
-    //if (Puzzles.find().count()==0){console.log('LOLOLL');return;}
+    if (Puzzles.find().count()==0){console.log('LOLOLL');return;}
     if ($('#sudoku').html()!=''){return;}
     thissession = Currentgames.findOne({id:Meteor.userId()});
     if (thissession == undefined) {return;}
@@ -304,6 +309,7 @@ Template.puzzle.rendered = function(){
       //var ololol= Meteor.users.find().fetch();
       console.log('Number of puzzles: '+Puzzles.find().count());
 
+      Template.puzzle.loadCurrent();
       //console.log(Meteor.userID);
       //if (!Meteor.userId()){ 
       //$('#sudoku').html('Lutfen giris yapin.');
