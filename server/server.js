@@ -24,15 +24,39 @@ Meteor.publish("currentUserData", function () {
 //return Puzzles.find(); // everything
 //});
 
-var addPuzzle = function (difficulty,clu, lo, hi) {
+//var addPuzzle = function (difficulty,clu, lo, hi) {
+  //var require = __meteor_bootstrap__.require;
+  //var sys = require('sys');
+  //var exec = require('child_process').exec;
+
+  //var lol = exec(path_sudoku_gen+" "+clu+" "+lo+" "+hi, function(error, stdout, stderr) {
+    //console.log(stdout);
+    //Fiber(function() {
+      //var sudoku_str=stdout;
+      //if (sudoku_str.length!=81){return;}
+      //Puzzles.insert({diff:difficulty, str:sudoku_str, random : Math.random()})
+      //console.log(sudoku_str);
+    //}).run();
+  //});
+//}
+
+//var populatePuzzles = function (difficulty,lo,hi,clu,desiredAmount) {
+  //var npuzzles = Puzzles.find({diff:difficulty}).count();
+  //if (npuzzles < desiredAmount) { addition = desiredAmount - npuzzles;
+    //for (var i=0; i < addition; i++) { addPuzzle(difficulty,clu,lo,hi); }}
+//};
+
+
+var addPuzzle = function (diffstring,difficulty) {
   var require = __meteor_bootstrap__.require;
   var sys = require('sys');
   var exec = require('child_process').exec;
 
-  var lol = exec(path_sudoku_gen+" "+clu+" "+lo+" "+hi, function(error, stdout, stderr) {
+  var lol = exec("qqwing --csv --difficulty "+diffstring+" --generate 1", function(error, stdout, stderr) {
     console.log(stdout);
     Fiber(function() {
       var sudoku_str=stdout;
+      sudoku_str = sudoku_str.slice(0,-1);
       if (sudoku_str.length!=81){return;}
       Puzzles.insert({diff:difficulty, str:sudoku_str, random : Math.random()})
       console.log(sudoku_str);
@@ -40,13 +64,11 @@ var addPuzzle = function (difficulty,clu, lo, hi) {
   });
 }
 
-var populatePuzzles = function (difficulty,lo,hi,clu,desiredAmount) {
+var populatePuzzles = function (difficulty,diffstring,desiredAmount) {
   var npuzzles = Puzzles.find({diff:difficulty}).count();
   if (npuzzles < desiredAmount) { addition = desiredAmount - npuzzles;
-    for (var i=0; i < addition; i++) { addPuzzle(difficulty,clu,lo,hi); }}
+    for (var i=0; i < addition; i++) { addPuzzle(diffstring,difficulty); }}
 };
-
-
 Meteor.startup(function () {
   // define MAIL_STRING in a separate .js file in the form of:
   // 'smtp://USER:PASS@HOST:PORT
@@ -65,10 +87,23 @@ Meteor.startup(function () {
   console.log("Number of puzzles: "+Puzzles.find().count());
   console.log("Number of games completed: "+Gamehistory.find().count());
   console.log("Number of games being played now: "+Currentgames.find().count());
-  populatePuzzles(0,0.0,1.5 ,79,desiredAmount); // supereasy
-  populatePuzzles(1,0.0,0.60,36,desiredAmount); // easy
-  populatePuzzles(2,0.6,0.8 ,33,desiredAmount); // medium
-  populatePuzzles(3,0.8,1.0 ,30,desiredAmount); // difficult
+  //populatePuzzles(0,0.0,1.5 ,79,desiredAmount); // supereasy
+  //populatePuzzles(1,0.0,0.45,40,desiredAmount); // easy
+  //populatePuzzles(2,0.45,0.6 ,36,desiredAmount); // medium
+  //populatePuzzles(3,0.8,1.0 ,30,desiredAmount); // difficult
+
+  
+  //populatePuzzles(0,); // supereasy
+  populatePuzzles(0,'simple',desiredAmount); // easy
+  populatePuzzles(1,'easy',desiredAmount); // easy
+  populatePuzzles(2,'intermediate',desiredAmount); // medium
+  populatePuzzles(3,'expert',desiredAmount); // medium
+  //populatePuzzles(3,); // difficult
+  
+  //populatePuzzles(0,0.0,1.5 ,79,desiredAmount); // supereasy
+  //populatePuzzles(1,0.0,0.60,36,desiredAmount); // easy
+  //populatePuzzles(2,0.6,0.8 ,33,desiredAmount); // medium
+  //populatePuzzles(3,0.8,1.0 ,30,desiredAmount); // difficult
 });
 
 
