@@ -82,23 +82,7 @@ var complete = function(board) {
   xmap(function(row, column) { rows[row][column].unbind('click') });
   if (active) deactivate(active);
   active = null;
-  thissession = Currentgames.findOne({id:Meteor.userId()});
-  delete thissession._id;
-  thissession.enddate = new Date();
-  loldate = new Date(thissession.startdate);
-  thissession.duration = Math.round((thissession.enddate-loldate)/60000);// in minutes
-  thissession.mistakes = nMistakes;
-  Gamehistory.insert(thissession);
-  Currentgames.remove({id:Meteor.userId()});
-  Meteor.call('sendReport',
-      {who:Meteor.user().emails[0].address,
-       diff:thissession.diff,
-       startdate:thissession.startdate,
-       enddate:thissession.enddate,
-       str:thissession.str,
-       duration: thissession.duration,
-       mistakes: thissession.mistakes
-  });
+  Meteor.call('completeCurrent',Meteor.userId(),nMistakes);
   alert('Tebrikler.');
   console.log(nMistakes)
 };
@@ -228,16 +212,36 @@ $.fn.sudoku2 = function(sudoku_string) {
 
 var givePuzzle = function (difficulty){
 
-  rand = Math.floor((Math.random()*Puzzles.find({diff:difficulty}).count()));
+  //rand = Math.floor((Math.random()*Puzzles.find({diff:difficulty}).count()));
 
-  console.log(rand+' '+'ASD');
-  result = Puzzles.find( { diff : difficulty} ).fetch()[rand];
-  if (result == undefined){
+  //console.log(rand+' '+'ASD');
+  //result = Puzzles.find( { diff : difficulty} ).fetch()[rand];
+  //if (result == undefined){
+  if (Puzzles.find().fetch()==0){
     console.log('Cant retrive puzzle');
     //return;
   }else{
+
+    if (Gamehistory.find({id:Meteor.userId()}).count() == 0) {
+      result = Puzzles.findOne({diff:4,order:0}); 
+    } else {
+      currOrder = Gamehistory.find({id:Meteor.userId()},{sort:{order:-1}}).fetch()[0].order;
+      result = Puzzles.findOne({diff:4,order:currOrder+1});
+      if (result == undefined) {
+        $('#sudoku').text('No available puzzles.');
+        return;
+      }
+    }
+    Puzzles.find({diff:4},{sort: {order:-1}}).fetch()[0].order;
+
     Currentgames.remove({id:Meteor.userId()});
-    Currentgames.insert({id:Meteor.userId(),email:Meteor.user().emails[0].address, str:result.str, startdate:new Date(),diff:difficulty});
+    //result.startdate = new Date();
+    result.email = Meteor.user().emails[0].address;
+    result.id = Meteor.userId();
+    delete result._id;
+    //Currentgames.insert(result);
+    Meteor.call("addCurrent",result);
+    //Currentgames.insert({id:Meteor.userId(),email:Meteor.user().emails[0].address, str:result.str, startdate:new Date(),diff:difficulty});
     $('#sudoku').sudoku2(result.str);
     //$('#sudoku').html("ASDASDASDSADASDAS");
   }
@@ -270,6 +274,7 @@ Template.puzzle.currentNotExists = function(){
 
   //if (Puzzles.find().count()==0){[>console.log('asfasfas');<] return false; }
   if (Currentgames.find({id:Meteor.userId()}).count()==0){
+    $('#sudoku').html('');
     return true;  
   }else{
     return false;
