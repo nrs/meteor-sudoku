@@ -222,13 +222,22 @@ var givePuzzle = function (difficulty){
     //return;
   }else{
 
-    if (Gamehistory.find({id:Meteor.userId()}).count() == 0) {
+    //if (Gamehistory.find({id:Meteor.userId()}).count() == 0) {
+    if (Schedule.find({id:Meteor.userId()}).count() == 0) {
       result = Puzzles.findOne({diff:4,order:0}); 
+      Schedule.insert({id:Meteor.userId(),order:0});
     } else {
-      currOrder = Gamehistory.find({id:Meteor.userId()},{sort:{order:-1}}).fetch()[0].order;
-      result = Puzzles.findOne({diff:4,order:currOrder+1});
+      //currOrder = Gamehistory.find({id:Meteor.userId()},{sort:{order:-1}}).fetch()[0].order;
+      //result = Puzzles.findOne({diff:4,order:currOrder+1});
+      currOrder = Schedule.findOne({id:Meteor.userId()}).order;
+      console.log(currOrder);
+      result = Puzzles.findOne({diff:4,order:currOrder});
       if (result == undefined) {
-        $('#sudoku').text('No available puzzles.');
+        $('#sudoku').text('Baska bulmaca bulunamadi.');
+        return;
+      }
+      if (Gamehistory.findOne({id:Meteor.userId(),order:currOrder})!=undefined){
+        $('#sudoku').text('Gunluk bulmacanizi zaten cozdunuz.');
         return;
       }
     }

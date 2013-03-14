@@ -4,6 +4,7 @@
 Puzzles = new Meteor.Collection("puzzles");
 Currentgames = new Meteor.Collection("currentgames");
 Gamehistory = new Meteor.Collection("gamehistory");
+Schedule = new Meteor.Collection("schedule");
 
 //Currentgames.allow({
   //insert: function(){
